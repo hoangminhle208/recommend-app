@@ -22,12 +22,14 @@ import {
   Image,SimpleGrid, Tag, TagLabel
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
 import.meta.env;
 
 const Search = () => {
   const [listMovie, setListMovie] = useState([]);
   const [quantity, setQuantity] = useState(10);
   const [nameSearch, setNameSearch] = useState("");
+  const navigate = useNavigate();
 
   const handleSearchMovie = async () => {
     setListMovie([
@@ -183,6 +185,11 @@ const Search = () => {
     // }
   };
 
+  const handleGetMovieInfor = (movie) => {
+    navigate(`/info-movie/${movie.infor_movie.movieId}`,{ state: movie })
+    console.log(movie)
+  }
+
   return (
     <React.Fragment>
       <Stack spacing={4} style={{ margin: "30px" }}>
@@ -204,7 +211,6 @@ const Search = () => {
           />
         </InputGroup>
 
-        {/* If you add the size prop to `InputGroup`, it'll pass it to all its children. */}
         <InputGroup size="sm">
           <InputLeftAddon>Quantity</InputLeftAddon>
           <NumberInput
@@ -231,7 +237,7 @@ const Search = () => {
                 <CardBody>
                   <Image
                     borderRadius='lg'
-                    src={movie.url_poster}
+                    src={movie.url_poster == "NA" ? 'https://via.placeholder.com/150' : movie.url_poster}
                     alt='Image of movie'
                     objectFit='cover'
                     height={250}
@@ -249,7 +255,7 @@ const Search = () => {
                   ): <Text>No genres</Text>}
                 </CardBody>
                 <CardFooter >
-                  <Button>View here</Button>
+                  <Button onClick={()=>handleGetMovieInfor(movie)}>View here</Button>
                 </CardFooter>
               </Card>
             </div>
