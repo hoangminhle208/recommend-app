@@ -116,7 +116,7 @@ const RecForUser = () => {
           setListMovieRecs(data.recs_movie);
           setListMovieUser(data.user_movie);
         });
-      console.log(data)
+      console.log(listMovieRecs)
     } else {
       alert("required");
     }
@@ -232,6 +232,7 @@ const RecForUser = () => {
                       <Heading size="md">
                         {movie.title ? movie.title : "NA"}
                       </Heading>
+                      <Text>{movie.release_date ? movie.release_date : "NA"}</Text>
                     </CardBody>
                   </Card>
                 </div>
