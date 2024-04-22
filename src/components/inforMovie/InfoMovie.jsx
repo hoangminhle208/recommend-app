@@ -14,6 +14,11 @@ import {
   Tag,
   Heading,
   Input,
+  NumberInputField,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInputStepper,
+  NumberInput,
 } from "@chakra-ui/react";
 import MovieCard from "../movieCard/MovieCard";
 import.meta.env;
@@ -23,31 +28,37 @@ const InfoMovie = () => {
   const [infoMovie, setInfoMovie] = useState(location.state);
   const [searchInput, setSearchInput] = useState("");
   const [listMovieRecs, setListMovieRecs] = useState([]);
-  
-  useEffect(() => {
-    setInfoMovie(location.state)
-  },[location.state]);
+  const [clickRecommend, setClickRecommend] = useState(false);
+  const [num, setNum] = useState(5);
 
-  const handleRecommend = async(searchInput,id) => {
-    await handleFetchMovieRecs(searchInput, id)
+  useEffect(() => {
+    setClickRecommend(false);
+    setSearchInput("");
+    setInfoMovie(location.state);
+  }, [location.state]);
+
+  const handleRecommend = async (id, input, num) => {
+    setClickRecommend(true);
+    await handleFetchMovieRecs(id, input, num);
   };
 
-  const handleFetchMovieRecs = async (id, searchInput) => {
+  const handleFetchMovieRecs = async (id, input, num) => {
     setListMovieRecs([]);
     await fetch(`${import.meta.env.VITE_FAST_API_URL}/recommend`, {
       method: "POST",
       body: JSON.stringify({
-        "id":id,
-        "nameMovie":searchInput,
+        movieId: id,
+        inputSearch: input,
+        num: num,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     })
-    .then(response => response.json())
-    .then(data => {
-      setListMovieRecs(data)
-    })
+      .then((response) => response.json())
+      .then((data) => {
+        setListMovieRecs(data);
+      });
     console.log(listMovieRecs);
   };
 
@@ -59,13 +70,12 @@ const InfoMovie = () => {
     left: "0",
     zIndex: -1,
     backgroundImage: `url(${infoMovie.url_poster})`,
-    backgroundSize:
-      "fit" /* Phóng to hoặc thu nhỏ ảnh để nó phủ toàn bộ phần tử */,
+    backgroundSize:"fit" /* Phóng to hoặc thu nhỏ ảnh để nó phủ toàn bộ phần tử */,
     filter: "blur(3px)",
   };
 
   return (
-    <React.Fragment>
+    <React.Fragment >
       <div style={style}></div>
       <Card
         marginTop={5}
@@ -130,11 +140,25 @@ const InfoMovie = () => {
                 width={300}
                 placeholder="import sth"
               />
+              <NumberInput
+                size="md"
+                maxW={24}
+                defaultValue={5}
+                min={1}
+                marginRight={5}
+                onChange={(value) => setNum(value)}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
               <Button
                 variant="solid"
                 colorScheme="blue"
                 onClick={() =>
-                  handleRecommend(searchInput, infoMovie.infor_movie.id)
+                  handleRecommend(infoMovie.infor_movie.id, searchInput, num)
                 }
               >
                 Recommend
@@ -143,38 +167,41 @@ const InfoMovie = () => {
           </CardFooter>
         </Stack>
       </Card>
-      <div className="px-8">
-        <h1
-          style={{
-            color: "white",
-            fontSize: "1.875rem", // tương đương với 3xl size
-            paddingTop: "0.75rem", // tương đương với py-3
-            paddingBottom: "0.75rem", // tương đương với py-3
-          }}
-        >
-          People who liked this movie also liked these:
-        </h1>
-        <div
-          style={{
-            display: "flex",
-            overflowX: "auto",
-            overflowY: "hidden",
-            cursor: "pointer",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          <div
-            style={{ display: "flex", alignItems: "center" }}
+      {clickRecommend == true ? (
+        <div style={{ paddingLeft: "2rem", paddingRight: "2rem" }}>
+          <h1
+            style={{
+              color: "white",
+              fontSize: "1.875rem", // tương đương với 3xl size
+              paddingTop: "0.75rem", // tương đương với py-3
+              paddingBottom: "0.75rem", // tương đương với py-3
+            }}
           >
-            {listMovieRecs?.map((movie) => {
-              return (
-                <MovieCard movie={movie} key={movie.infor_movie.movieId} movieId={movie.infor_movie.movieId} url={movie.url_poster} />
-              );
-            })}
+            People who liked this movie also liked these:
+          </h1>
+          <div className="no-scrollbar" style={{display: 'flex', overflowX: 'auto', cursor: 'pointer' }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {listMovieRecs.length > 0 ? (
+                <>
+                {listMovieRecs.map((movie) => (
+                  <MovieCard
+                    movie={movie}
+                    key={movie.infor_movie.movieId}
+                    movieId={movie.infor_movie.movieId}
+                    url={movie.url_poster}
+                  />
+                ))}
+                
+              </>
+            ) : (
+              <div></div>
+            )}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div></div>
+      )}
     </React.Fragment>
   );
 };

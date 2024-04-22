@@ -17,7 +17,7 @@ const MovieCard = ({ url, movieId , movie}) => {
       }}
       onClick={()=>handleOpen()}
     >
-      <img src={url} alt="movie-banner" />
+      <img src={url != 'NA' ? url : 'https://via.placeholder.com/150'} alt="movie-banner" />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import Home from "./components/Home";
 import Similar from "./components/getSimilar/Similar";
 import Search from "./components/searchEngine/Search";
 import InfoMovie from "./components/inforMovie/InfoMovie";
+import RecForUser from "./components/recsForUser/RecForUser";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { ChakraProvider } from "@chakra-ui/react";
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/get-similar-movie" element={<Similar />} />
             <Route path="/search-movie" element={<Search />} />
             <Route path="/info-movie/:id" element={<InfoMovie />} />
+            <Route path="/get-recs-for-user" element={<RecForUser />} />
           </Routes>
         </Router>
       </main>
