@@ -13,6 +13,7 @@ import {
   CardBody,
   CardFooter,
   Heading,
+  Card,
   Button,
   Text,
   Image,SimpleGrid, Tag, TagLabel
