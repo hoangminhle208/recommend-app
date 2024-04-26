@@ -27,14 +27,13 @@ const Navbar = () => {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to={"/get-similar-movie"}>
-                Get similar movie
-              </NavLink>
-            </li>
-
-            <li className="nav-item">
               <NavLink className="nav-link" to={"/get-recs-for-user"}>
                 Take recommend movie for user
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to={"/get-visualize-movie"}>
+                Data Visualization
               </NavLink>
             </li>
           </ul>
