@@ -6,7 +6,7 @@ const MovieCard = ({ url, movieId , movie}) => {
 
   const handleOpen = () => {
     navigate(`/info-movie/${movieId}`,{ state: movie })
-    console.log(movie)
+    //console.log(movie)
   };
 
   return (
@@ -17,7 +17,7 @@ const MovieCard = ({ url, movieId , movie}) => {
       }}
       onClick={()=>handleOpen()}
     >
-      <img src={url != 'NA' ? url : 'https://via.placeholder.com/150'} alt="movie-banner" />
+      <img src={url != 'NA' ? url : 'https://via.placeholder.com/184x277'} alt="movie-banner" />
     </div>
   );
 };

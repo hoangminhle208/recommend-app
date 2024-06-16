@@ -1,5 +1,5 @@
 import { useLocation, useParams } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState} from "react";
 import {
   FormControl,
   FormLabel,
@@ -12,8 +12,15 @@ import {
   SimpleGrid,
   SkeletonText,
   Box,
-  Text
+  Text,Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,useDisclosure
 } from "@chakra-ui/react";
+import { QuestionIcon} from '@chakra-ui/icons'
 
 const RecForUser = () => {
   const [listMovieRecs, setListMovieRecs] = useState([]);
@@ -22,9 +29,11 @@ const RecForUser = () => {
   const [numLast, setNumLast] = useState(0);
   const [num, setNum] = useState(0);
   const [q, setQ] = useState("");
-
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [clickButton, setClickButton] = useState(false);
 
   const handleRecommend = async () => {
+    setClickButton(true)
     if (userId > 0 && numLast > 0 && num > 0) {
       await fetch(
         `${import.meta.env.VITE_FAST_API_URL}/get-recommend-for-user`,
@@ -55,8 +64,31 @@ const RecForUser = () => {
 
   return (
     <React.Fragment>
+      <>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Parameter List</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text fontSize={15} fontWeight={450}>1. Enter the userid you want to recommend | ex:72<br/>
+                  2. Enter number of movies the user last rated highly | ex:5<br/>
+                  3. Enter number of movies recommend | ex:5<br/>
+                  4. Enter filter recommendations | ex:genres:children <br/>
+            </Text>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='blue' mr={3} onClick={onClose}>
+              Close
+            </Button>
+            {/* <Button variant='ghost'>Secondary Action</Button> */}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      </>
       <FormControl isRequired marginTop={10} marginLeft={20}>
-        <FormLabel>Recommend for user</FormLabel>
+        <FormLabel>Recommend for user  <QuestionIcon onClick={onOpen} style={{cursor:"pointer"}} w={5} h={5}/></FormLabel>
         <div
           style={{
             display: "flex",
@@ -65,27 +97,31 @@ const RecForUser = () => {
           }}
         >
           <div style={{ width: "45%" }}>
+            <FormLabel>1.UserId</FormLabel>
             <Input
               placeholder="User ID"
               onChange={(e) => setUserId(e.target.value)}
             />
+            <FormLabel marginTop={4}>2.Number of movies(user vote)</FormLabel>
             <Input
               placeholder="Number of movies the user last rated highly"
               onChange={(e) => setNumLast(e.target.value)}
-              marginTop={4}
+              
             
             />
           </div>
           <div style={{ width: "45%" }}>
+            <FormLabel>3. Number of movies(recommend)</FormLabel>
             <Input
               placeholder="Number of movies recommend"
               onChange={(e) => setNum(e.target.value)}
 
             />
+            <FormLabel marginTop={4}>4. Filter recommendations</FormLabel>
             <Input
-              placeholder="...q"
+              placeholder="Filter recommendations | ex:genres:children"
               onChange={(e) => setQ(e.target.value)}
-              marginTop={4}
+              
             />
           </div>
         </div>
@@ -132,9 +168,11 @@ const RecForUser = () => {
           </div>
         </div>
       ) : (
-        <Box padding="6" boxShadow="lg" bg="white">
+        clickButton ? (<>
+          <Box padding="6" boxShadow="lg" bg="white">
           <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
         </Box>
+        </>) : (<></>)
       )}
 
       {listMovieRecs.length > 0 ? (
@@ -161,7 +199,7 @@ const RecForUser = () => {
                         height={250}
                         width={203}
                       />
-                      <Heading size="md">
+                      <Heading size="md" isTruncated>
                         {movie.title ? movie.title : "NA"}
                       </Heading>
                       <Text>{movie.release_date ? movie.release_date : "NA"}</Text>
@@ -173,9 +211,11 @@ const RecForUser = () => {
           </div>
         </div>
       ) : (
-        <Box padding="6" boxShadow="lg" bg="white">
+        clickButton ? (<>
+          <Box padding="6" boxShadow="lg" bg="white">
           <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
         </Box>
+        </>) : (<></>)
       )}
     </React.Fragment>
   );

@@ -11,26 +11,34 @@ import {
 import { Icon } from "@chakra-ui/icons";
 import { MdLocalMovies } from "react-icons/md";
 import { IoMdStar, IoIosAttach, IoIosFolder } from "react-icons/io";
+import { DatePicker, Space, Button } from 'antd';
+
+
 const Visualize = () => {
   const [totalMovies, setTotalMovies] = useState(-1);
   const [imgMovieCountByYear, setImgMovieCountByYear] = useState("");
   const [top10MovieByVote, setTop10MovieByVote] = useState("");
   const [popularGenres, setPopularGenres] = useState("");
   const [highRateMovie, setHighRateMovie] = useState("");
-  const [yearFrom, setYearFrom] = useState(0);
-  const [yearTo, setYearTo] = useState(0);
+  const [yearFrom, setYearFrom] = useState(1990);
+  const [yearTo, setYearTo] = useState(2010);
+  const { RangePicker } = DatePicker;
 
-  
   useEffect(() => {
-
+    getTotalMovie()
+    getChart()
   }, []);
 
+  const handleReloadImg = () => {
+    console.log(yearFrom);
+    console.log(yearTo);
+    getChart()
+  }
   const getTotalMovie = async () => {
     await fetch(
       `${import.meta.env.VITE_FAST_API_URL}/api/total_movies`,
       {
         method: "GET",
-        body:{},
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
@@ -40,15 +48,18 @@ const Visualize = () => {
       .then((data) => {
         setTotalMovies(data.total_movies);
       });
-    console.log(totalMovies)
+    //console.log(totalMovies)
   };
   
   const getChart = async() => {
     await fetch(
       `${import.meta.env.VITE_FAST_API_URL}/movies_year`,
       {
-        method: "GET",
-        body:{},
+        method: "POST",
+        body: JSON.stringify({
+          "start_date":yearFrom,
+          "end_date":yearTo
+        }),
         headers: {
           "Content-type": "application/json; charset=UTF-8",
         },
@@ -56,9 +67,53 @@ const Visualize = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        //setTotalMovies(data.total_movies);
+        setImgMovieCountByYear(data)
       });
-    //console.log(listMovieRecs)
+    //console.log(imgMovieCountByYear)
+    await fetch(
+      `${import.meta.env.VITE_FAST_API_URL}/top_10_movies_vote`,
+      {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setTop10MovieByVote(data)
+      });
+      //console.log(top10MovieByVote)
+      await fetch(
+        `${import.meta.env.VITE_FAST_API_URL}/popularity_of_genres`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setPopularGenres(data)
+        });
+        await fetch(
+          `${import.meta.env.VITE_FAST_API_URL}/highest_rated_movie`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              "start_date":yearFrom,
+              "end_date":yearTo
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            setHighRateMovie(data)
+          });
   }
 
   return (
@@ -79,7 +134,7 @@ const Visualize = () => {
                   <Icon as={MdLocalMovies} w={8} h={8} color="red.500" />
                 </Heading>
                 <Text fontSize="30px" fontWeight={700} color="tomato">
-                  500
+                  {totalMovies}
                 </Text>
               </CardBody>
             </Card>
@@ -103,7 +158,7 @@ const Visualize = () => {
                   <Icon as={IoIosAttach} w={8} h={8} color="red.500" />
                 </Heading>
                 <Text fontSize="30px" fontWeight={700} color="tomato">
-                  500
+                  .....
                 </Text>
               </CardBody>
             </Card>
@@ -114,7 +169,7 @@ const Visualize = () => {
                   <Icon as={IoIosFolder} w={8} h={8} color="red.500" />
                 </Heading>
                 <Text fontSize="30px" fontWeight={700} color="tomato">
-                  500
+                  .....
                 </Text>
               </CardBody>
             </Card>
@@ -128,13 +183,35 @@ const Visualize = () => {
             </Stack>
           </div>
         )}
-        {/* <div style={{display:"flex", marginTop:"30px"}}>
-          <img src={`data:image/jpeg;base64,${chart2}`} />
-          <img style={{marginRight:"30px"}} src={`data:image/jpeg;base64,${chart5}`} />
-        </div>
+        
+        <div style={{display:"flex", marginTop:"30px"}}>
 
-        <img src={`data:image/jpeg;base64,${chart3}`} />
-        <img src={`data:image/jpeg;base64,${chart4}`} /> */}
+        <img src={`data:image/jpeg;base64,${imgMovieCountByYear}`} />
+        <img src={`data:image/jpeg;base64,${highRateMovie}`} />
+
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Space direction="vertical" size={12}>
+            <RangePicker
+            picker="year"
+            placeholder={['Start Year:1990','End Year:2010']}
+            onChange={(value) => {
+              setYearFrom(value[0].$y)
+              setYearTo(value[1].$y)
+              
+            }}
+            id={{
+              start: BigInt,
+              end: BigInt,
+            }}
+            
+          />
+          </Space>
+          <Button type="primary" onClick={()=>handleReloadImg()}>Reload</Button>
+        </div>
+        <img style={{marginRight:"30px"}} src={`data:image/jpeg;base64,${top10MovieByVote}`} />
+        <img src={`data:image/jpeg;base64,${popularGenres}`} />
+        
       </div>
     </React.Fragment>
   );

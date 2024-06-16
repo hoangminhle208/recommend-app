@@ -16,7 +16,7 @@ import {
   Card,
   Button,
   Text,
-  Image,SimpleGrid, Tag, TagLabel
+  Image,SimpleGrid, Tag, TagLabel,Spinner
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -26,31 +26,42 @@ const Search = () => {
   const [listMovie, setListMovie] = useState([]);
   const [quantity, setQuantity] = useState(10);
   const [nameSearch, setNameSearch] = useState("");
+  const [clickButton, setClickButton] = useState(false);
+  const [checkData, setCheckData] = useState(false);
   const navigate = useNavigate();
 
   const handleSearchMovie = async () => {
+    setClickButton(true)
     setListMovie([]);
-    if(quantity > 0 && nameSearch != ""){
-      await fetch(`${import.meta.env.VITE_FAST_API_URL}/search`, {
-        method: "POST",
-        body: JSON.stringify({
-          "nameMovie":nameSearch,
-          "size":quantity
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        setListMovie(data)
-      })
-      // await handleAddUrlPoster()
-      console.log(listMovie)
+    setCheckData(true)
+    if (quantity > 0 && nameSearch !== "") {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_FAST_API_URL}/search`, {
+          method: "POST",
+          body: JSON.stringify({
+            nameMovie: nameSearch,
+            size: quantity,
+          }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        });
+        const data = await response.json();
+        setListMovie(data);
+        setCheckData(data.length > 0);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        //setIsLoading(false);
+      }
     } else {
-      alert("not")
+      console.log("check", checkData);
+      alert("Please type name or genres of movie");
+      //setIsLoading(false);
     }
   };
+
+  
 
   const handleGetMovieInfor = (movie) => {
     navigate(`/info-movie/${movie.infor_movie.movieId}`,{ state: movie })
@@ -64,7 +75,7 @@ const Search = () => {
           <InputLeftAddon>Name movie</InputLeftAddon>
           <Input
             type="text"
-            placeholder="title of movie or something"
+            placeholder="title or genres of movie"
             onChange={(e) => {
               setNameSearch(e.target.value);
             }}
@@ -95,7 +106,7 @@ const Search = () => {
           </NumberInput>
         </InputGroup>
       </Stack>
-      {listMovie.length > 0 ? (
+      {listMovie.length > 0 && checkData ==true ? (
         <div>
           <SimpleGrid spacing={5} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
           {listMovie.map((movie,index) => (
@@ -110,7 +121,12 @@ const Search = () => {
                     height={250}
                     width={203}
                   />
-                  <Heading size='md'>{movie.infor_movie.title ? movie.infor_movie.title : "NA"}</Heading>
+                  <Heading 
+                    //isTruncated
+                    style={{height:"50px",overflow:"hidden", textOverflow:"ellipsis"}} size='md'
+                  >
+                    {movie.infor_movie.title ? movie.infor_movie.title : "NA"}
+                  </Heading>
                   {movie.infor_movie.genres.length > 0 ? (
                     <div>{
                       movie.infor_movie.genres.map((genre,index)=>(
@@ -130,8 +146,28 @@ const Search = () => {
           </SimpleGrid>
         </div>
       ) : (
-        <div>Loading</div>
-        //<CircularProgress isIndeterminate color='green.300' />
+        //<div>Loading</div>
+        <>{
+          clickButton ? (
+           checkData ? (
+            <Spinner
+            thickness='4px'
+            speed='0.65s'
+            emptyColor='gray.200'
+            color='blue.500'
+            size='xl'
+            marginLeft={500}
+            marginTop={50}
+            height={100}
+            width={100}
+          />
+           ) : (
+            <div>No data</div>
+           )
+        ) : (
+          <div>
+          </div>
+        )}</>
       )}
     </React.Fragment>
   );

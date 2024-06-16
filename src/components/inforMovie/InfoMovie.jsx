@@ -18,7 +18,7 @@ import {
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInputStepper,
-  NumberInput,
+  NumberInput,FormLabel
 } from "@chakra-ui/react";
 import MovieCard from "../movieCard/MovieCard";
 import.meta.env;
@@ -99,7 +99,7 @@ const InfoMovie = () => {
               align="stretch"
             >
               <Box h="40px" marginBottom={5}>
-                <Heading size="lg" fontSize="50px">
+                <Heading size="lg" fontSize="50px" isTruncated>
                   {infoMovie.infor_movie.title}
                 </Heading>
               </Box>
@@ -134,12 +134,14 @@ const InfoMovie = () => {
 
           <CardFooter>
             <div style={{ display: "flex" }}>
+            <FormLabel fontSize={20}>Filter recommendations</FormLabel>
               <Input
                 onChange={(e) => setSearchInput(e.target.value)}
                 marginRight={5}
                 width={300}
-                placeholder="import sth"
+                placeholder="For EX: title:(NOT title_movie)"
               />
+              <FormLabel fontSize={20}>Quantity</FormLabel>
               <NumberInput
                 size="md"
                 maxW={24}
